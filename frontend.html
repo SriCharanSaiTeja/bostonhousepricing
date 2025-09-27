@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Boston House Price Prediction</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #e3f0ff 0%, #f7e9ff 100%);
+            margin: 0;
+            padding: 0;
+        }
+        h2 {
+            color: #1976d2;
+            margin-top: 30px;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+        form, .backend-config {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(25, 118, 210, 0.08);
+            padding: 24px;
+            margin: 24px auto;
+            max-width: 480px;
+        }
+        .backend-config {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+        }
+        form input[type="number"], form input[type="text"] {
+            width: 120px;
+            margin: 6px 8px 6px 0;
+            padding: 6px;
+            border-radius: 4px;
+            border: 1px solid #90caf9;
+            background: #f1f8e9;
+            color: #333;
+        }
+        form button {
+            margin-top: 12px;
+            padding: 10px 22px;
+            background: linear-gradient(90deg, #1976d2 60%, #8e24aa 100%);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(25, 118, 210, 0.10);
+            transition: background 0.2s;
+        }
+        form button:hover {
+            background: linear-gradient(90deg, #1565c0 60%, #6d1b7b 100%);
+        }
+        h3 {
+            text-align: center;
+            color: #8e24aa;
+        }
+        #result {
+            color: #1976d2;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-top: 16px;
+        }
+        details {
+            max-width: 480px;
+            margin: 24px auto;
+            background: #fff;
+            padding: 18px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(25, 118, 210, 0.07);
+        }
+        summary {
+            font-weight: bold;
+            color: #1976d2;
+            cursor: pointer;
+        }
+        ul {
+            margin-top: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Enter House Features</h2>
+    <details>
+        <summary>Feature Descriptions</summary>
+        <ul>
+            <li><b>CRIM</b>: Per capita crime rate by town</li>
+            <li><b>ZN</b>: Proportion of residential land zoned for lots over 25,000 sq.ft.</li>
+            <li><b>INDUS</b>: Proportion of non-retail business acres per town</li>
+            <li><b>CHAS</b>: Charles River dummy variable (1 if tract bounds river; 0 otherwise)</li>
+            <li><b>NOX</b>: Nitric oxides concentration (parts per 10 million)</li>
+            <li><b>RM</b>: Average number of rooms per dwelling</li>
+            <li><b>AGE</b>: Proportion of owner-occupied units built prior to 1940</li>
+            <li><b>DIS</b>: Weighted distances to five Boston employment centres</li>
+            <li><b>RAD</b>: Index of accessibility to radial highways</li>
+            <li><b>TAX</b>: Full-value property-tax rate per $10,000</li>
+            <li><b>PTRATIO</b>: Pupil-teacher ratio by town</li>
+            <li><b>B</b>: 1000(Bk - 0.63)^2 where Bk is the proportion of Black residents by town</li>
+            <li><b>LSTAT</b>: % lower status of the population</li>
+        </ul>
+    </details>
+    <div class="backend-config">
+        <label for="backendHost"><strong>Backend Host:</strong></label>
+        <input type="text" id="backendHost" value="127.0.0.1" style="width:120px;">
+        <label for="backendPort"><strong>Port:</strong></label>
+        <input type="number" id="backendPort" value="5000" min="1" max="65535" style="width:80px;">
+        <span>(Default: 127.0.0.1:5000)</span>
+    </div>
+    <form id="predictForm">
+        <input type="number" step="any" name="CRIM" placeholder="CRIM (e.g. 0.1)" required>
+        <input type="number" step="any" name="ZN" placeholder="ZN (e.g. 25)" required>
+        <input type="number" step="any" name="INDUS" placeholder="INDUS (e.g. 5.0)" required>
+        <input type="number" step="any" name="CHAS" placeholder="CHAS (e.g. 0)" required>
+        <input type="number" step="any" name="NOX" placeholder="NOX (e.g. 0.45)" required>
+        <input type="number" step="any" name="RM" placeholder="RM (e.g. 6.2)" required>
+        <input type="number" step="any" name="AGE" placeholder="AGE (e.g. 45)" required>
+        <input type="number" step="any" name="DIS" placeholder="DIS (e.g. 5.5)" required>
+        <input type="number" step="any" name="RAD" placeholder="RAD (e.g. 4)" required>
+        <input type="number" step="any" name="TAX" placeholder="TAX (e.g. 300)" required>
+        <input type="number" step="any" name="PTRATIO" placeholder="PTRATIO (e.g. 16)" required>
+        <input type="number" step="any" name="B" placeholder="B (e.g. 390)" required>
+        <input type="number" step="any" name="LSTAT" placeholder="LSTAT (e.g. 8.5)" required>
+        <button type="submit">Predict Price</button>
+    </form>
+    <h3>Note: Predicted price is in <b>thousands of dollars</b> (USD).</h3>
+    <h3 id="result"></h3>
+    <script>
+        document.getElementById('predictForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const form = e.target;
+            const features = [
+                parseFloat(form.CRIM.value),
+                parseFloat(form.ZN.value),
+                parseFloat(form.INDUS.value),
+                parseFloat(form.CHAS.value),
+                parseFloat(form.NOX.value),
+                parseFloat(form.RM.value),
+                parseFloat(form.AGE.value),
+                parseFloat(form.DIS.value),
+                parseFloat(form.RAD.value),
+                parseFloat(form.TAX.value),
+                parseFloat(form.PTRATIO.value),
+                parseFloat(form.B.value),
+                parseFloat(form.LSTAT.value)
+            ];
+            const host = document.getElementById('backendHost').value || '127.0.0.1';
+            const port = document.getElementById('backendPort').value || '5000';
+            try {
+                const res = await fetch(`http://${host}:${port}/predict`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({features})
+                });
+                if (!res.ok) throw new Error('Server error');
+                const data = await res.json();
+                document.getElementById('result').innerText = 'Predicted Price: ' + data.prediction;
+            } catch (err) {
+                document.getElementById('result').innerText = `Error: Could not get prediction. Is the backend running on http://${host}:${port}?`;
+            }
+        };
+    </script>
+</body>
+</html>
