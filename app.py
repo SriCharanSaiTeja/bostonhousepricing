@@ -19,7 +19,7 @@ def predict():
     features = np.array([data['features']])
     features_scaled = scaler.transform(features)
     prediction = model.predict(features_scaled)
-    return jsonify({'prediction': float(prediction[0])})
+    return jsonify({'prediction': int(round(prediction[0]))})
 
 @app.route('/')
 def index():
