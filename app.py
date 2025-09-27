@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, send_from_directory # type: ignore
-from flask_cors import CORS
+from flask_cors import CORS # type: ignore
 import pickle
 import numpy as np # type: ignore
 import warnings
@@ -30,4 +30,4 @@ def frontend():
     return send_from_directory('.', 'frontend.html')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)
+    app.run(host='0.0.0.0', port=5000)
